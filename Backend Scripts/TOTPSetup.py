@@ -3,7 +3,6 @@ from getpass import getpass
 import bcrypt
 import pyotp
 import time
-
 import os
 
 # Restart the NTP service to ensure accurate time synchronization
@@ -82,38 +81,42 @@ def setup_totp(username):
     print("\n📲 Scan this QR code with your authenticator app:")
     display_qr_code(qr_code_url)  # Show the QR code
 
-    print(f"\n🔑 Your backup code: {generate_backup_code()} (Store this in a **secure place**!)")
+    backup_code = generate_backup_code()
+    print(f"\n🔑 Your backup code: {backup_code} (Store this in a **secure place**!)")
     print("\nIf you cannot scan the QR code, please use the following secret key to manually set up TOTP in your app:")
     print(f"Secret key: {secret}")
 
-    # Confirmation prompt for user to verify setup
-    confirmation = input("Please confirm your TOTP setup by typing 'yes' once you have authenticated with the QR code or secret key: ").strip().lower()
-    if confirmation == "yes":
-        # Ask user to enter the auth code from their app
-        attempts = 3
-        while attempts > 0:
-            entered_code = input("Enter the authentication code from your authenticator app: ").strip()
-            if totp.verify(entered_code):  # Validate the entered TOTP code
-                print("✅ TOTP setup complete! Access granted.")
-                backup_code = generate_backup_code()  # Generate and save a backup code
-                update_query = "UPDATE Customers SET totp_secret = %s, backup_code = %s WHERE username = %s"
-                cursor.execute(update_query, (secret, backup_code, username))
-                db_connection.commit()  # Save the changes to the database
-                return True
-            else:
-                print(f"❌ Incorrect authentication code. Attempts left: {attempts-1}")
-                attempts -= 1
+    # Prompt user to confirm TOTP setup by entering the backup code
+    user_input = input("Please confirm your TOTP setup by entering your backup code: ").strip()
 
-        # If TOTP fails after 3 attempts, ask for the backup code
-        print("❌ Too many incorrect TOTP attempts. Please use your backup code.")
-        if prompt_for_backup_code(username):  # Validate backup code
-            print("✅ Backup code verified! Access granted.")
+    # Validate user input against the generated backup code
+    if user_input == backup_code:
+        print("✅ TOTP setup confirmed successfully!")
+    else:
+        print("❌ Incorrect backup code. Please try setting up TOTP again.")
+        return False
+
+    # Ask user to enter the auth code from their app
+    attempts = 3
+    while attempts > 0:
+        entered_code = input("Enter the authentication code from your authenticator app: ").strip()
+        if totp.verify(entered_code):  # Validate the entered TOTP code
+            print("✅ TOTP setup complete! Access granted.")
+            update_query = "UPDATE Customers SET totp_secret = %s, backup_code = %s WHERE username = %s"
+            cursor.execute(update_query, (secret, backup_code, username))
+            db_connection.commit()  # Save the changes to the database
             return True
         else:
-            print("❌ Invalid backup code. Exiting...")
-            return False
+            print(f"❌ Incorrect authentication code. Attempts left: {attempts-1}")
+            attempts -= 1
+
+    # If TOTP fails after 3 attempts, ask for the backup code
+    print("❌ Too many incorrect TOTP attempts. Please use your backup code.")
+    if prompt_for_backup_code(username):  # Validate backup code
+        print("✅ Backup code verified! Access granted.")
+        return True
     else:
-        print("❌ TOTP setup was not completed. Exiting...")
+        print("❌ Invalid backup code. Exiting...")
         return False
 
 # Verify the TOTP code entered by the user
@@ -266,7 +269,7 @@ def get_customer_info(username):
 # Main function to initiate the process
 def main():
     log_event("Backend execution started.", test_run=True)
-    print("\n🏦 Welcome to the Ally Financial Banking System - User Login 🏦\n")
+    print("\n🏦 Welcome to the Ally Bank - User Login 🏦\n")
     login()
     log_event("Backend execution completed.", test_run=True)
 
