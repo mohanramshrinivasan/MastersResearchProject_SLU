@@ -71,6 +71,15 @@ def display_qr_code(qr_code_url):
     qr.make(fit=True)
     qr.print_ascii()
 
+
+# Function to provide a downloadable link of the TOTP guide
+def provide_totp_guide():
+    # You can update this with either a local path or a URL to the TOTP guide
+    # For example, the PDF file can be served from a server or stored locally
+    guide_link = "/home/mshrinivasan/MRP-Team6/TOTPSetupGuide.pdf"  # Modify this with your actual path or URL
+    print(f"\n📥 Download the TOTP Guide PDF: {guide_link}")
+    print("You can download the TOTP guide from the link above to help you set up your authenticator app.")
+
 # Set up TOTP for a user, including generating the secret, QR code, and backup code
 def setup_totp(username):
     secret = generate_totp_secret()  # Generate a TOTP secret key
@@ -80,6 +89,9 @@ def setup_totp(username):
 
     print("\n📲 Scan this QR code with your authenticator app:")
     display_qr_code(qr_code_url)  # Show the QR code
+
+    # Provide downloadable link to the TOTP guide
+    provide_totp_guide()
 
     backup_code = generate_backup_code()
     print(f"\n🔑 Your backup code: {backup_code} (Store this in a **secure place**!)")
