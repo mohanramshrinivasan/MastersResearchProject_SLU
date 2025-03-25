@@ -122,6 +122,8 @@ def totp_setup():
     if request.method == "POST":
         entered_backup = request.form.get("confirm_backup", "").strip()
         if entered_backup == session.get("generated_backup_code"):
+            # Always update database with new credentials
+            save_totp_credentials(username, session["secret"], session["generated_backup_code"])
             return redirect(url_for("totp_auth"))
         else:
             return render_template("totp_setup.html", error="Incorrect backup code. Try again.", qr=session["qr_code"], secret=session["secret"], backup=session["generated_backup_code"])
@@ -136,15 +138,12 @@ def totp_auth():
     if "username" not in session:
         return redirect(url_for("login"))
     username = session["username"]
-    secret = get_totp_secret(username) or session.get("secret")
+    secret = get_totp_secret(username)
     if request.method == "POST":
         entered_code = request.form["totp"]
         totp = pyotp.TOTP(secret)
         if totp.verify(entered_code):
             session["failed_attempts"] = 0
-            if not get_backup_code(username):
-                save_totp_credentials(username, session["secret"], session["generated_backup_code"])
-                session["totp_setup_complete"] = True
             return redirect(url_for("customer"))
         session["failed_attempts"] = session.get("failed_attempts", 0) + 1
         if session["failed_attempts"] >= 3:
