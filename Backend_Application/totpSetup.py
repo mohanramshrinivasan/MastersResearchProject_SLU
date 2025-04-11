@@ -76,7 +76,7 @@ def display_qr_code(qr_code_url):
 def provide_totp_guide():
     # You can update this with either a local path or a URL to the TOTP guide
     # For example, the PDF file can be served from a server or stored locally
-    guide_link = "/home/mshrinivasan/MRP-Team6/TOTPSetupGuide.pdf"  # Modify this with your actual path or URL
+    guide_link = "/root/MastersResearchProject_SLU/Frontend_Application/static/TOTPSetupGuide.pdf"  # Modify this with your actual path or URL
     print(f"\n📥 Download the TOTP Guide PDF: {guide_link}")
     print("You can download the TOTP guide from the link above to help you set up your authenticator app.")
 
