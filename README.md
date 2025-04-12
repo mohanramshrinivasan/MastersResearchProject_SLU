@@ -1,4 +1,4 @@
-# Masters Research Project – Enhancing Customer Authentication with Time-Based One-Time Password (TOTP) Security
+# Enhancing Customer Authentication with Time-Based One-Time Password (TOTP) Security
 
 This project is a Linux-based secure banking platform using **Flask**, **MariaDB**, and **TOTP (Time-based One-Time Password)**. It includes a frontend web app and backend scripts for secure authentication, user data management, and TOTP-based 2FA.
 
